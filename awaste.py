@@ -83,7 +83,7 @@ class ImageGallery(QWidget):
         self.label.setPixmap(scaled_pixmap)
         print(self.fname[0][self.current])
 
-    def nextImage(self):  #fdsf
+    def nextImage(self):
         try:
             # print(self.fname)
             if self.current >= len(self.fname[0]) - 1:
