@@ -1,5 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QHBoxLayout, \
+    QMessageBox
 import sys
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 
@@ -60,8 +61,6 @@ class ImageGallery(QWidget):
 
     def getImage(self):
         import os
-        desktop = os.getlogin()
-        # imagePath=""
         self.fname = QFileDialog.getOpenFileNames(self, 'Open file', os.getcwd(), "Image files (*.jpg *.gif *.jpeg)")
         try:
             imagePath = self.fname[0][0]
@@ -81,7 +80,7 @@ class ImageGallery(QWidget):
         try:
             # print(self.fname)
             if self.current >= len(self.fname[0]) - 1:
-                print('End of Next')
+                self.show_popup_window('Это последнее изображение!')
             else:
                 self.current += 1
                 imagePath = self.fname[0][self.current]
@@ -103,7 +102,13 @@ class ImageGallery(QWidget):
             self.label.setPixmap(scaled_pixmap)
             print(self.fname[0][self.current])
         else:
-            print('End of Prev  ')
+            self.show_popup_window('Это первое изображение!')
+
+    def show_popup_window(self, error):
+        msg = QMessageBox()
+        msg.setWindowTitle("Внимание!")
+        msg.setText(error)
+        msg.exec_()
 
 
     def saveAs(self):
