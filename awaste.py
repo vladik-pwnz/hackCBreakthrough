@@ -68,13 +68,20 @@ class ImageGallery(QWidget):
             print("list of image fname = {}".format(self.fname))
             print("type imagePath{}".format(type(imagePath)))
             print("type fname {}".format(type(self.fname)))
-            pixmap = QPixmap(imagePath)
-            label_size = self.label.size()
-            scaled_pixmap = pixmap.scaled(label_size, Qt.KeepAspectRatio)
-            self.label.setPixmap(scaled_pixmap)
+            self.showingImage()
+
 
         except IndexError as e:
             print(e)
+
+
+    def showingImage(self):
+        imagePath = self.fname[0][self.current]
+        pixmap = QPixmap(imagePath)
+        label_size = self.label.size()
+        scaled_pixmap = pixmap.scaled(label_size, Qt.KeepAspectRatio)
+        self.label.setPixmap(scaled_pixmap)
+        print(self.fname[0][self.current])
 
     def nextImage(self):
         try:
@@ -83,24 +90,16 @@ class ImageGallery(QWidget):
                 self.show_popup_window('Это последнее изображение!')
             else:
                 self.current += 1
-                imagePath = self.fname[0][self.current]
-                pixmap = QPixmap(imagePath)
-                label_size = self.label.size()
-                scaled_pixmap = pixmap.scaled(label_size, Qt.KeepAspectRatio)
-                self.label.setPixmap(scaled_pixmap)
-                print(self.fname[0][self.current])
+                self.showingImage()
+
         except IndexError as e:
             print(e)
 
     def prevImage(self):
         if self.current > 0:
             self.current -= 1
-            imagePath = self.fname[0][self.current]
-            pixmap = QPixmap(imagePath)
-            label_size = self.label.size()
-            scaled_pixmap = pixmap.scaled(label_size, Qt.KeepAspectRatio)
-            self.label.setPixmap(scaled_pixmap)
-            print(self.fname[0][self.current])
+            self.showingImage()
+
         else:
             self.show_popup_window('Это первое изображение!')
 
