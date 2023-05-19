@@ -49,6 +49,7 @@ class ImageGallery(QWidget):
         self.setLayout(vbox)
 
 
+
         btnOpenImages.clicked.connect(self.getImage)
         btnUseModel.clicked.connect(self.useModel)
         btnSaveDetectedImages.clicked.connect(self.saveAs)
