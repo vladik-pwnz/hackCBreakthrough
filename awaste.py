@@ -88,15 +88,19 @@ class ImageGallery(QWidget):
     def getImage(self):
         self.fname = QFileDialog.getOpenFileNames(self, 'Open file', os.getcwd(), "Image files (*.jpg *.gif *.jpeg)")
         try:
-            imagePath = self.fname[0][0]
-            # print("first image Path  = {}".format(imagePath))
-            # print("list of image fname = {}".format(self.fname))
-            # print("type imagePath{}".format(type(imagePath)))
-            # print("type fname {}".format(type(self.fname)))
-            self.showingImage()
+            imagePaths = self.fname[0]
+            # Iterate over selected file paths
+            for imagePath in imagePaths:
+                # Check if the file has an image extension
+                if not any(imagePath.lower().endswith(ext) for ext in ['.jpg', '.gif', '.jpeg']):
+                    self.show_popup_window('Добавлено не фото! можно добавлять только фото.')
+                    return
 
+            # All files are images
+            self.showingImage()
         except IndexError as e:
-            print(e)
+            # Handle index error if no files were selected
+            pass
 
         self.label.setFocus()
 
