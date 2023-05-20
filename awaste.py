@@ -1,9 +1,20 @@
+from functools import wraps
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QHBoxLayout, \
     QMessageBox
 import sys
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 import os
+
+
+def check_file_loaded(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if not self.fname:
+            self.show_popup_window('Сначала загрузите файлы!')
+        else:
+            return func(self, *args, **kwargs)
+    return wrapper
 
 
 class ImageGallery(QWidget):
@@ -49,12 +60,19 @@ class ImageGallery(QWidget):
         btnOpenImages.clicked.connect(self.getImage)
         btnUseModel.clicked.connect(self.useModel)
 
-        btnNextImage.clicked.connect(self.nextImage)
-        btnPrevImage.clicked.connect(self.prevImage)
+        btnNextImage.clicked.connect(lambda: self.nextImage())
+        btnPrevImage.clicked.connect(lambda: self.prevImage())
 
         self.label.setFocus()
 
         self.show()
+
+    def show_popup_window(self, error):
+        msg = QMessageBox()
+        msg.setWindowTitle("Внимание!")
+        msg.setText(error)
+        msg.exec_()
+
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Left: self.prevImage()
@@ -71,10 +89,10 @@ class ImageGallery(QWidget):
         self.fname = QFileDialog.getOpenFileNames(self, 'Open file', os.getcwd(), "Image files (*.jpg *.gif *.jpeg)")
         try:
             imagePath = self.fname[0][0]
-            print("first image Path  = {}".format(imagePath))
-            print("list of image fname = {}".format(self.fname))
-            print("type imagePath{}".format(type(imagePath)))
-            print("type fname {}".format(type(self.fname)))
+            # print("first image Path  = {}".format(imagePath))
+            # print("list of image fname = {}".format(self.fname))
+            # print("type imagePath{}".format(type(imagePath)))
+            # print("type fname {}".format(type(self.fname)))
             self.showingImage()
 
         except IndexError as e:
@@ -82,6 +100,7 @@ class ImageGallery(QWidget):
 
         self.label.setFocus()
 
+    @check_file_loaded
     def nextImage(self):
         try:
             if self.current >= len(self.fname[0]) - 1:
@@ -93,6 +112,7 @@ class ImageGallery(QWidget):
         except IndexError as e:  # сначала загрузите датасет функция
             print(e)
 
+    @check_file_loaded
     def prevImage(self):
         if self.current > 0:
             self.current -= 1
@@ -100,12 +120,9 @@ class ImageGallery(QWidget):
         else:
             self.show_popup_window('Это первое изображение!')
 
-    def show_popup_window(self, error):
-        msg = QMessageBox()
-        msg.setWindowTitle("Внимание!")
-        msg.setText(error)
-        msg.exec_()
 
+
+    @check_file_loaded
     def useModel(self):
         pass
 
