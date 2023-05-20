@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFi
     QMessageBox
 import sys
 from PyQt5.QtGui import QPixmap, QIcon, QFont
+import os
 
 
 class ImageGallery(QWidget):
@@ -21,9 +22,8 @@ class ImageGallery(QWidget):
         vbox = QVBoxLayout()
 
         topButtons = QHBoxLayout()
-        btnOpenImages = QPushButton("Загрузить изображения")
-        btnUseModel = QPushButton("Применить модель")
-        btnSaveDetectedImages = QPushButton("Сохранить как")
+        btnOpenImages = NoFocusButton("Загрузить изображения")
+        btnUseModel = NoFocusButton("Применить модель")
 
         mainWindow = QHBoxLayout()
         self.label = QLabel("Разметка лебедей будет тут!")
@@ -31,13 +31,11 @@ class ImageGallery(QWidget):
         self.label.setAlignment(Qt.AlignCenter)
 
         arrows = QHBoxLayout()
-        btnPrevImage = QPushButton("Назад")
-        btnNextImage = QPushButton("Дальше")
-
+        btnPrevImage = NoFocusButton("Назад")
+        btnNextImage = NoFocusButton("Дальше")
 
         topButtons.addWidget(btnOpenImages)
         topButtons.addWidget(btnUseModel)
-        topButtons.addWidget(btnSaveDetectedImages)
         vbox.addLayout(topButtons)
 
         mainWindow.addWidget(self.label)
@@ -48,20 +46,28 @@ class ImageGallery(QWidget):
         vbox.addLayout(arrows)
         self.setLayout(vbox)
 
-
-
         btnOpenImages.clicked.connect(self.getImage)
         btnUseModel.clicked.connect(self.useModel)
-        btnSaveDetectedImages.clicked.connect(self.saveAs)
 
         btnNextImage.clicked.connect(self.nextImage)
         btnPrevImage.clicked.connect(self.prevImage)
 
+        self.label.setFocus()
+
         self.show()
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Left: self.prevImage()
+        elif event.key() == Qt.Key_Right: self.nextImage()
+
+    def showingImage(self):
+        imagePath = self.fname[0][self.current]
+        pixmap = QPixmap(imagePath)
+        scaled_pixmap = pixmap.scaled(self.label.size(), Qt.KeepAspectRatio)
+        self.label.setPixmap(scaled_pixmap)
+        print(self.fname[0][self.current])
 
     def getImage(self):
-        import os
         self.fname = QFileDialog.getOpenFileNames(self, 'Open file', os.getcwd(), "Image files (*.jpg *.gif *.jpeg)")
         try:
             imagePath = self.fname[0][0]
@@ -71,36 +77,26 @@ class ImageGallery(QWidget):
             print("type fname {}".format(type(self.fname)))
             self.showingImage()
 
-
         except IndexError as e:
             print(e)
 
-
-    def showingImage(self):
-        imagePath = self.fname[0][self.current]
-        pixmap = QPixmap(imagePath)
-        label_size = self.label.size()
-        scaled_pixmap = pixmap.scaled(label_size, Qt.KeepAspectRatio)
-        self.label.setPixmap(scaled_pixmap)
-        print(self.fname[0][self.current])
+        self.label.setFocus()
 
     def nextImage(self):
         try:
-            # print(self.fname)
             if self.current >= len(self.fname[0]) - 1:
                 self.show_popup_window('Это последнее изображение!')
             else:
                 self.current += 1
                 self.showingImage()
 
-        except IndexError as e:
+        except IndexError as e:  # сначала загрузите датасет функция
             print(e)
 
     def prevImage(self):
         if self.current > 0:
             self.current -= 1
             self.showingImage()
-
         else:
             self.show_popup_window('Это первое изображение!')
 
@@ -110,13 +106,14 @@ class ImageGallery(QWidget):
         msg.setText(error)
         msg.exec_()
 
-
-    def saveAs(self):
-        pass
-
-
     def useModel(self):
         pass
+
+
+class NoFocusButton(QPushButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setFocusPolicy(Qt.NoFocus)
 
 
 if __name__ == '__main__':
