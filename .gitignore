@@ -1,0 +1,7 @@
+.python-version
+venv
+model_data
+catboost_info
+__pycache__
+main/detector/__pycache__
+main/draw/__pycache__

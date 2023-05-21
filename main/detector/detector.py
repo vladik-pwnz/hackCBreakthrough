@@ -1,6 +1,6 @@
 import onnxruntime as ort
 import numpy as np
-# import cv2
+import cv2
 from PIL import Image
 
 def load_model_detector(model_path, input_shape=(1024, 1280), class_names=['klikun', 'maliy', 'shipun'], score_thresh=0.2,
@@ -88,10 +88,10 @@ class ModelDetectorYoloONNX:
             else:
                 padded_img = np.ones(input_size) * 114.0
             ratio = min(input_size[0] / img.shape[0], input_size[1] / img.shape[1])
-            resized_img = Image.resize(
+            resized_img = cv2.resize(
                 img,
                 (int(img.shape[1] * ratio), int(img.shape[0] * ratio)),
-                interpolation=Image.INTER_LINEAR,
+                interpolation=cv2.INTER_LINEAR,
             ).astype(np.float32)
             padded_img[: int(img.shape[0] * ratio), : int(img.shape[1] * ratio)] = resized_img
             img = padded_img
@@ -113,7 +113,7 @@ class ModelDetectorYoloONNX:
 if __name__ == "__main__":
     path_to_onnx = "yolo.onnx"
     path_img = "img.jpg"
-    img = Image.open(path_img)
+    img = cv2.imread(path_img)
     detector_model = load_model_detector(model_path=path_to_onnx)
     result = detector_model(img)
     print(result)

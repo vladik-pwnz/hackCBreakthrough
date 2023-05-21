@@ -7,7 +7,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QFont, QImage
 import os
 from PyQt5 import QtGui
 from detector.detector import load_model_detector
-# import cv2
+import cv2
 from PIL import Image
 from draw.drawer import Drawer
 import numpy as np
@@ -90,8 +90,8 @@ class ImageGallery(QWidget):
     def showingImage(self):
         imagePath = self.fname[0][self.current]
         ####
-        # img = cv2.imread(imagePath)
-        img = Image.open(imagePath)
+        img = cv2.imread(imagePath)
+        # img = Image.open(imagePath)
         # img = img[:, :, ::-1]
         name_conf_bb_list = self.detector_model(img[:, :, ::-1]) # BGR to RGB
         # print(id_bb_list)
@@ -174,7 +174,7 @@ class NoFocusButton(QPushButton):
 
 
 if __name__ == '__main__':
-    path_detector_onnx = r"./model_data/best.onnx"
+    path_detector_onnx = r"model_data/best.onnx"
 
     class_names = ['klikun', 'maliy', 'shipun']
     # providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']

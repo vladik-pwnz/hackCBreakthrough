@@ -1,5 +1,5 @@
-# import cv2
-from PIL import Image
+import cv2
+# from PIL import Image
 import numpy as np
 # from storage import Object
 
@@ -29,7 +29,7 @@ class Drawer:
     def __init__(self, image=None, class2colors={}):
         self.image = image
         self.class2colors = class2colors
-        self.font = Image.FONT_HERSHEY_SIMPLEX
+        self.font = cv2.FONT_HERSHEY_SIMPLEX
         self.font_scale = 0.5
         self.font_thickness = 1
         self.text_color = (255, 255, 255)
@@ -41,22 +41,22 @@ class Drawer:
             color = self.get_color(class_name)
 
         overlay = self.image.copy()
-        Image.rectangle(overlay, bbox[0]-1, bbox[1]+1, color, -1)
-        self.image = Image.addWeighted(overlay, alpha, self.image, 1 - alpha, 0)
-        Image.rectangle(self.image, bbox[0]-1, bbox[1]+1, color, 1)
+        cv2.rectangle(overlay, bbox[0]-1, bbox[1]+1, color, -1)
+        self.image = cv2.addWeighted(overlay, alpha, self.image, 1 - alpha, 0)
+        cv2.rectangle(self.image, bbox[0]-1, bbox[1]+1, color, 1)
         text = f"{class_name}"
         if confidence:
             text += f" {confidence:.2f}"
 
         # if polygon is not None:
         #     text += f" polygon ({polygon_confidence:.2f})"
-        text_size, _ = Image.getTextSize(text, self.font, self.font_scale, self.font_thickness)
+        text_size, _ = cv2.getTextSize(text, self.font, self.font_scale, self.font_thickness)
         text_x = bbox[0][0] + 5
         text_y = bbox[0][1] + text_size[1] + 5
         # cv2.rectangle(self.image, (bbox[0], bbox[1]), (text_x + text_size[0], text_y + text_size[1]),
         #               self.text_background_color, -1)
-        Image.putText(self.image, text, (text_x, text_y), self.font, self.font_scale, self.get_color(class_name+"_text"),
-                    self.font_thickness, Image.LINE_AA)
+        cv2.putText(self.image, text, (text_x, text_y), self.font, self.font_scale, self.get_color(class_name+"_text"),
+                    self.font_thickness, cv2.LINE_AA)
         return self
 
     def draw_polygon_area(self, polygon, class_name='', confidence=None, alpha=0.2, color=None):
@@ -67,26 +67,26 @@ class Drawer:
 
         # Draw polygon with transparency based on confidence
         overlay = self.image.copy()
-        Image.fillPoly(overlay, [polygon], color)
+        cv2.fillPoly(overlay, [polygon], color)
         # alpha = 0.5 * polygon_confidence
-        self.image = Image.addWeighted(overlay, alpha, self.image, 1 - alpha, 0)
+        self.image = cv2.addWeighted(overlay, alpha, self.image, 1 - alpha, 0)
         # Draw class name at polygon centroid
         text = f"{class_name}"
         if confidence:
             text += f" {confidence:.2f}"
 
         if text:
-            moments = Image.moments(polygon)
+            moments = cv2.moments(polygon)
             cx = int(moments['m10'] / (moments['m00'] + 1e-10))
             cy = int(moments['m01'] / (moments['m00'] + 1e-10))
-            text_size = Image.getTextSize(text, self.font, self.font_scale, self.font_thickness)[0]
+            text_size = cv2.getTextSize(text, self.font, self.font_scale, self.font_thickness)[0]
             wh = polygon.max(axis=0) - polygon.min(axis=0)
             if text_size[1] < wh[1] + 5 and text_size[0] < wh[0] + 5:
                 text_x = cx - text_size[0] // 2
                 text_y = cy + text_size[1] // 2
-                Image.putText(self.image, text, (text_x, text_y), self.font, self.font_scale,
+                cv2.putText(self.image, text, (text_x, text_y), self.font, self.font_scale,
                             self.get_color(class_name+"_text"),
-                            self.font_thickness, Image.LINE_AA)
+                            self.font_thickness, cv2.LINE_AA)
         return self
 
     def draw_polygon_border(self, polygon, class_name=None, color=None, alpha_border=0.8):
@@ -94,19 +94,19 @@ class Drawer:
             color = self.get_color(class_name)
         polygon = np.round(np.array(polygon)).astype(int).reshape(-1, 1, 2)
 
-        imgdraw = Image.polylines(np.zeros_like(self.image, np.uint8), [polygon], isClosed=True, thickness=1, color=color)
+        imgdraw = cv2.polylines(np.zeros_like(self.image, np.uint8), [polygon], isClosed=True, thickness=1, color=color)
         mask = imgdraw.astype(bool)
-        self.image[mask] = Image.addWeighted(imgdraw, alpha_border, self.image, 1 - alpha_border, 0)[mask]
+        self.image[mask] = cv2.addWeighted(imgdraw, alpha_border, self.image, 1 - alpha_border, 0)[mask]
         return self
 
     def draw_text(self, text, font_scale=0.8, thickness=1, alpha=0.5):
         # Set up text parameters
-        font_face = Image.FONT_HERSHEY_SIMPLEX
+        font_face = cv2.FONT_HERSHEY_SIMPLEX
         padding = 5  # Padding around the text
         bonus_padding_background_down = 3
 
         # Get the text size
-        text_size, _ = Image.getTextSize(text, font_face, font_scale, thickness)
+        text_size, _ = cv2.getTextSize(text, font_face, font_scale, thickness)
 
         # Set the text position (top-right corner with padding)
         text_pos = (self.image.shape[1] - text_size[0] - padding, padding + text_size[1])
@@ -114,20 +114,20 @@ class Drawer:
         # Draw the text background
         overlay = self.image.copy()
 
-        Image.rectangle(overlay, (text_pos[0] - padding, text_pos[1] - padding - text_size[1]),
+        cv2.rectangle(overlay, (text_pos[0] - padding, text_pos[1] - padding - text_size[1]),
                       (text_pos[0] + text_size[0] + padding, text_pos[1] + padding + bonus_padding_background_down),
                       self.text_background_color, -1)
-        self.image = Image.addWeighted(overlay, alpha, self.image, 1 - alpha, 0)
+        self.image = cv2.addWeighted(overlay, alpha, self.image, 1 - alpha, 0)
         # Draw the text itself
-        Image.putText(self.image, text, text_pos, font_face, font_scale, self.text_color, thickness, Image.LINE_AA)
+        cv2.putText(self.image, text, text_pos, font_face, font_scale, self.text_color, thickness, Image.LINE_AA)
         return self
 
     def save_image(self, filename):
-        Image.imwrite(filename, self.image)
+        cv2.imwrite(filename, self.image)
 
     def show(self, window=''):
-        Image.imshow(window, self.image)
-        Image.waitKey(0)
+        cv2.imshow(window, self.image)
+        cv2.waitKey(0)
 
     def get_color(self, class_name):
         color = self.class2colors.get(class_name, None)
@@ -172,7 +172,7 @@ class Drawer:
 
 
 if __name__ == "__main__":
-    img = Image.open(r"D:\temp\testimg.jpg")
+    img = cv2.open(r"D:\temp\testimg.jpg")
     draw = Drawer(img)
     draw.draw_bbox((100, 100, 600, 600), "car", 0.86734, alpha=0.15)
     draw.draw_polygon_area([[300, 300], [300, 330], [330, 330], [330, 300]], 'dog', alpha=0.15)
