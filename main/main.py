@@ -1,17 +1,20 @@
 from functools import wraps
+
+import torch
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QHBoxLayout, \
     QMessageBox
 import sys
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QImage
 import os
-from PyQt5 import QtGui
+# from PyQt5 import QtGui
 from detector.detector import load_model_detector
 import cv2
 from draw.drawer import Drawer
 import numpy as np
-
-
+# from classifier.classificatorResnet18 import ResNet
+#
+# from torchvision.models import resnet18
 
 def check_file_loaded(func):
     @wraps(func)
@@ -24,13 +27,14 @@ def check_file_loaded(func):
 
 
 class ImageGallery(QWidget):
-    def __init__(self, detector_model):
+    def __init__(self, detector_modelm, classifier_model=None):
         super().__init__()
         self.title = "Приложение для автоматической разметки лебедей"
         self.current = 0
         self.fname = ''
         self.InitWindow()
         self.detector_model = detector_model
+        self.classifier_model = classifier_model
         self.drawer = Drawer()
 
     def InitWindow(self):
@@ -90,14 +94,27 @@ class ImageGallery(QWidget):
         imagePath = self.fname[0][self.current]
         ####
         img = cv2.imread(imagePath)
-        # img = img[:, :, ::-1]
-        name_conf_bb_list = self.detector_model(img[:, :, ::-1]) # BGR to RGB
-        # print(id_bb_list)
-        self.drawer.set_image(img)
+        input_size = (640,640)
+        ratio = min(input_size[0] / img.shape[0], input_size[1] / img.shape[1])
+        img = cv2.resize(
+            img,
+            (int(img.shape[1] * ratio), int(img.shape[0] * ratio)),
+            interpolation=cv2.INTER_LINEAR)
+
+        self.drawer.set_image(img[:])
+        img = img[:, :, ::-1]
+        name_conf_bb_list = self.detector_model(img)  # BGR to RGB
+
+        if self.classifier_model:
+            conf_class = self.classifier_model(img)
+            res = torch.argmax(conf_class)
+            print(res)
+
         for cls_name, conf, *bbox in name_conf_bb_list:
             bbox = np.array(bbox).reshape(-1, 2)
             self.drawer.draw_bbox(bbox, cls_name, conf)
 
+        self.drawer.draw_text()
         ####
         # pixmap = QPixmap(imagePath)
         self.drawer.show()
@@ -173,6 +190,7 @@ class NoFocusButton(QPushButton):
 
 if __name__ == '__main__':
     path_detector_onnx = r"./model_data/best.onnx"
+    path_classifier_pkl = r"C:\workspace\hakaton\hackCBreakthrough\main\model_data\logs_model_ensemble_cpu.pkl"
 
     class_names = ['klikun', 'maliy', 'shipun']
     # providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
@@ -184,8 +202,9 @@ if __name__ == '__main__':
         input_shape=(640, 640),
         score_thresh=[0.2, 0.2, 0.2]
     )
-
-
+    classifier_model = None
+    # classifier_model = ResNet()
+    # classifier_model.load_state_dict(torch.load('C:\workspace\hakaton\hackCBreakthrough\main\model_data\logs_model_ensemble_cpu.pth', map_location='cpu'))
     App = QApplication(sys.argv)
-    window = ImageGallery(detector_model)
+    window = ImageGallery(detector_model, classifier_model)
     sys.exit(App.exec())
