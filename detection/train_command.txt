@@ -1,0 +1,54 @@
+exp1 - tiny - mixup 0.15, mosaic 1.0
+python train.py --workers 8 --device 0 --batch-size 10 --epochs 10 --data ../lebedi.yaml --img 1280 1280 --cfg ../yolov7-tiny-lebedi.yaml --weights yolov7-tiny.pt --name exp1-tiny-lebedi --hyp ../hyp.lebedi.yaml
+
+
+
+resume training from yolov7\runs\train\exp1-tiny-lebedi3\weights\last.pt
+python train.py --workers 8 --device 0 --batch-size 10 --epochs 15 --data ../lebedi.yaml --img 1280 1280 --cfg ../yolov7-tiny-lebedi.yaml --weights "runs\train\exp1-tiny-lebedi3\weights\last.pt" --name exp1-tiny-lebedi --hyp ../hyp.lebedi.yaml
+
+resume training from yolov7\runs\train\exp1-tiny-lebedi4\weights\last.pt
+python train.py --workers 8 --device 0 --batch-size 10 --epochs 20 --data ../lebedi.yaml --img 1280 1280 --cfg ../yolov7-tiny-lebedi.yaml --weights "runs\train\exp1-tiny-lebedi4\weights\last.pt" --name exp1-resume-tiny-lebedi --hyp ../hyp.lebedi.yaml
+
+
+
+
+
+-------------
+
+train on kaggle9
+python train.py --workers 8 --device 0 --batch-size 30 --epochs 30 --data /kaggle/input/lebedi-yolo2/dataset/lebedi-tiny.yaml --img 640 640 --cfg /kaggle/input/lebedi-yolo2/dataset/yolov7-lebedi.yaml --weights "/kaggle/input/lebedi-yolo2/dataset/yolov7-tiny.pt" --name exp2-lebedi --hyp /kaggle/input/lebedi-yolo2/dataset/hyp.lebedi.yaml
+
+
+/kaggle/input/lebedi-yolo2/dataset
+
+
+!git clone https://github.com/WongKinYiu/yolov7
+%cd /kaggle/working/yolov7
+%ls
+!python train.py --workers 8 --device 0 --batch-size 30 --epochs 30 --data /kaggle/input/lebedi-yolo2/lebedi.yaml --img 640 640 --cfg /kaggle/input/lebedi-yolo2/yolov7-tiny-lebedi.yaml --weights /kaggle/input/lebedi-yolo2/dataset/yolov7-tiny.pt --name exp3-lebedi --hyp /kaggle/input/lebedi-yolo2/hyp.lebedi.yaml
+
+
+
+------
+
+exp2 - tiny - check ds - mixup 0.15, mosaic 1.0
+python train.py --workers 8 --device 0 --batch-size 10 --epochs 20 --data ../lebedi.yaml --img 640 640 --cfg ../yolov7-tiny-lebedi.yaml --weights yolov7-tiny.pt --name exp2_cooltiny --hyp ../hyp.lebedi.yaml
+
+python train.py --workers 8 --device 0 --batch-size 10 --epochs 20 --data ../lebedi.yaml --img 640 640 --cfg ../yolov7-tiny-lebedi.yaml --weights runs\train\exp2_cooltiny3\weights\last.pt --name exp2_cooltiny --hyp ../hyp.lebedi.yaml
+
+
+python train.py --workers 8 --device 0 --batch-size 9 --epochs 20 --data ../lebedi.yaml --img 640 640 --cfg ../yolov7-lebedi.yaml --weights ../yolov7.pt --name exp2_cooltiny --hyp ../hyp.lebedi.yaml
+
+
+yolov7\runs\train\exp2_cooltiny3\weights\last.pt
+
+
+
+                Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95: 100%
+                 all        1885        2115       0.587       0.788       0.647       0.561
+              klikun        1885         656       0.634       0.724       0.661       0.573
+               maliy        1885         904        0.41       0.767       0.483       0.407
+              shipun        1885         555       0.718       0.872       0.797       0.701
+Optimizer stripped from runs\train\exp2_cooltiny4\weights\last.pt, 12.3MB
+Optimizer stripped from runs\train\exp2_cooltiny4\weights\best.pt, 12.3MB
+python export.py --weights runs\train\exp2_cooltiny4\weights\best.pt --grid --end2end --simplify --topk-all 100 --iou-thres 0.65 --conf-thres 0.35 --img-size 640 640
