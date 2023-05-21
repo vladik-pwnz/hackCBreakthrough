@@ -40,7 +40,6 @@ class ImageGallery(QWidget):
     def InitWindow(self):
         self.setWindowIcon(QIcon("icon.ico"))
         self.setWindowTitle('icon')
-        self.showMaximized()
 
         vbox = QVBoxLayout()
 
@@ -49,13 +48,13 @@ class ImageGallery(QWidget):
         btnUseModel = NoFocusButton("Применить модель")
 
         mainWindow = QHBoxLayout()
-        self.label = QLabel("Разметка лебедей будет тут!")
+        self.label = QLabel("Добро пожаловать!")
         self.label.setFont(QFont('Times font', 20))
         self.label.setAlignment(Qt.AlignCenter)
 
         arrows = QHBoxLayout()
         btnPrevImage = NoFocusButton("Назад")
-        btnNextImage = NoFocusButton("Дальше")
+        btnNextImage = NoFocusButton("Вперед")
 
         topButtons.addWidget(btnOpenImages)
         topButtons.addWidget(btnUseModel)
@@ -110,11 +109,19 @@ class ImageGallery(QWidget):
             res = torch.argmax(conf_class)
             print(res)
 
+        max_conf = 0
+        pred_name = 0
         for cls_name, conf, *bbox in name_conf_bb_list:
             bbox = np.array(bbox).reshape(-1, 2)
             self.drawer.draw_bbox(bbox, cls_name, conf)
+            if conf > max_conf:
+                max_conf = conf
+                pred_name = cls_name
 
-        self.drawer.draw_text()
+
+        #TODO: add catboost
+        self.label.setText(pred_name)
+        # self.drawer.draw_text()
         ####
         # pixmap = QPixmap(imagePath)
         self.drawer.show()
@@ -162,6 +169,7 @@ class ImageGallery(QWidget):
             else:
                 self.current += 1
                 self.showingImage()
+                # self.label=
 
         except IndexError as e:  # сначала загрузите датасет функция
             print(e)
@@ -192,7 +200,7 @@ if __name__ == '__main__':
     path_detector_onnx = r"./model_data/best.onnx"
     path_classifier_pkl = r"C:\workspace\hakaton\hackCBreakthrough\main\model_data\logs_model_ensemble_cpu.pkl"
 
-    class_names = ['klikun', 'maliy', 'shipun']
+    class_names = ['кликун', 'малый', 'щипун']
     # providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
     providers = ['CPUExecutionProvider']
     detector_model = load_model_detector(

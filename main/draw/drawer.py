@@ -28,7 +28,7 @@ class Drawer:
     def __init__(self, image=None, class2colors={}):
         self.image = image
         self.class2colors = class2colors
-        self.font = cv2.FONT_HERSHEY_SIMPLEX
+        self.font = cv2.FONT_HERSHEY_COMPLEX
         self.font_scale = 0.5
         self.font_thickness = 1
         self.text_color = (255, 255, 255)
@@ -98,7 +98,7 @@ class Drawer:
         self.image[mask] = cv2.addWeighted(imgdraw, alpha_border, self.image, 1 - alpha_border, 0)[mask]
         return self
 
-    def draw_text(self, text, font_scale=0.8, thickness=1, alpha=0.5):
+    def draw_text(self, text='', font_scale=0.8, thickness=1, alpha=0.5):
         # Set up text parameters
         font_face = cv2.FONT_HERSHEY_SIMPLEX
         padding = 5  # Padding around the text
@@ -126,7 +126,9 @@ class Drawer:
 
     def show(self, window=''):
         cv2.imshow(window, self.image)
-        cv2.waitKey(0)
+        key = cv2.waitKey(0)
+        if (key == 27):
+            cv2.destroyAllWindows()
 
     def get_color(self, class_name):
         color = self.class2colors.get(class_name, None)
