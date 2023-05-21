@@ -3,7 +3,7 @@ from functools import wraps
 import torch
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QHBoxLayout, \
-    QMessageBox
+    QMessageBox, QCheckBox
 import sys
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QImage
 import os
@@ -12,6 +12,7 @@ from detector.detector import load_model_detector
 import cv2
 from draw.drawer import Drawer
 import numpy as np
+import pandas as pd
 # from classifier.classificatorResnet18 import ResNet
 #
 # from torchvision.models import resnet18
@@ -46,10 +47,11 @@ class ImageGallery(QWidget):
         topButtons = QHBoxLayout()
         btnOpenImages = NoFocusButton("Загрузить изображения")
         btnUseModel = NoFocusButton("Применить модель")
+        self.flagBox = QCheckBox("Детекция")
 
         mainWindow = QHBoxLayout()
         self.label = QLabel("Добро пожаловать!")
-        self.label.setFont(QFont('Times font', 20))
+        self.label.setFont(QFont('Times font', 22))
         self.label.setAlignment(Qt.AlignCenter)
 
         arrows = QHBoxLayout()
@@ -57,6 +59,7 @@ class ImageGallery(QWidget):
         btnNextImage = NoFocusButton("Вперед")
 
         topButtons.addWidget(btnOpenImages)
+        topButtons.addWidget(self.flagBox)
         topButtons.addWidget(btnUseModel)
         vbox.addLayout(topButtons)
 
@@ -77,6 +80,10 @@ class ImageGallery(QWidget):
         self.label.setFocus()
 
         self.show()
+
+    def closeEvent(self, event):
+        cv2.destroyAllWindows()
+        exit()
 
     def show_popup_window(self, error):
         msg = QMessageBox()
@@ -113,15 +120,15 @@ class ImageGallery(QWidget):
         pred_name = 0
         for cls_name, conf, *bbox in name_conf_bb_list:
             bbox = np.array(bbox).reshape(-1, 2)
-            self.drawer.draw_bbox(bbox, cls_name, conf)
+            if self.flagBox.isChecked():
+                self.drawer.draw_bbox(bbox, cls_name, conf)
             if conf > max_conf:
                 max_conf = conf
                 pred_name = cls_name
 
 
         #TODO: add catboost
-        self.label.setText(pred_name)
-        # self.drawer.draw_text()
+        self.drawer.draw_text(f"{pred_name} {max_conf:.2f}")
         ####
         # pixmap = QPixmap(imagePath)
         self.drawer.show()
@@ -141,7 +148,9 @@ class ImageGallery(QWidget):
         # self.label.setPixmap(scaled_pixmap)
         # print(self.fname[0][self.current])
 
-    def getImage(self):
+        return pred_name
+
+    def getImage(self,*args, **kwargs):
         self.fname = QFileDialog.getOpenFileNames(self, 'Open file', os.getcwd(), "Image files (*.jpg *.gif *.jpeg)")
         try:
             imagePaths = self.fname[0]
@@ -153,7 +162,7 @@ class ImageGallery(QWidget):
                     return
 
             # All files are images
-            self.showingImage()
+            self.showOneImage()
         except IndexError as e:
             # Handle index error if no files were selected
             pass
@@ -161,39 +170,56 @@ class ImageGallery(QWidget):
         self.label.setFocus()
 
     @check_file_loaded
-    def nextImage(self):
+    def nextImage(self,*args, **kwargs):
         """След кадр"""
         try:
             if self.current >= len(self.fname[0]) - 1:
                 self.show_popup_window('Это последнее изображение!')
             else:
                 self.current += 1
-                self.showingImage()
+                self.showOneImage()
                 # self.label=
 
         except IndexError as e:  # сначала загрузите датасет функция
             print(e)
 
     @check_file_loaded
-    def prevImage(self):
+    def prevImage(self,*args, **kwargs):
         """Пред кадр"""
         if self.current > 0:
             self.current -= 1
-            self.showingImage()
+            self.showOneImage()
         else:
             self.show_popup_window('Это первое изображение!')
 
 
+    def showOneImage(self,*args, **kwargs):
+        pred_name = self.showingImage()
+        self.label.setText(pred_name)
 
     @check_file_loaded
-    def useModel(self):
-        pass
+    def useModel(self,*args, **kwargs):
+        d = {'кликун':0, 'малый':0, 'щипун':0}
+        n = len(self.fname)
+        df = pd.DataFrame({'фото':['']*n,'вид':['']*n})
+        for i in range(n):
+            current = i
+            pred = self.showingImage()
+            d[pred] += 1
+            df.at[i,'фото'] = self.fname[i]
+            df.at[i,'вид'] = pred
+        self.label.setText(f"подсчет фото - кликун: {d['кликун']}, малый: {d['малый']}, щипун: {d['щипун']}")
+        savefname = QFileDialog.getSaveFileName(self, "Save file", "", ".csv")
+        df.to_csv(savefname[0])
+
+
 
 
 class NoFocusButton(QPushButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setFocusPolicy(Qt.NoFocus)
+        self.setFont(QFont('Times font', 14))
 
 
 if __name__ == '__main__':

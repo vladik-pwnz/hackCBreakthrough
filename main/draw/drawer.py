@@ -100,7 +100,7 @@ class Drawer:
 
     def draw_text(self, text='', font_scale=0.8, thickness=1, alpha=0.5):
         # Set up text parameters
-        font_face = cv2.FONT_HERSHEY_SIMPLEX
+        font_face = cv2.FONT_HERSHEY_COMPLEX
         padding = 5  # Padding around the text
         bonus_padding_background_down = 3
 
