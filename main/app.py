@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFi
 import sys
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QImage
 import os
-# from PyQt5 import QtGui
+from PyQt5 import QtGui
 from detector import load_model_detector
 import cv2
 from drawer import Drawer
@@ -26,7 +26,7 @@ class NoFocusButton(QPushButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setFocusPolicy(Qt.NoFocus)
-        self.setFont(QFont('Times font', 14))
+        self.setFont(QFont('Arial', 14))
 
 class ImageGallery(QWidget):
     def __init__(self, detector_model, classifier_model=None):
@@ -49,11 +49,15 @@ class ImageGallery(QWidget):
         btnOpenImages = NoFocusButton("Загрузить изображения")
         btnUseModel = NoFocusButton("Сохранить в .csv")
         self.flagBox = QCheckBox("Детекция")
+        self.flagBox.setFont(QFont('Arial', 14))
 
-        mainWindow = QHBoxLayout()
-        self.label = QLabel("Добро пожаловать!")
-        self.label.setFont(QFont('Times font', 22))
-        self.label.setAlignment(Qt.AlignCenter)
+        mainWindow = QVBoxLayout()
+        self.canvas = QLabel("Добро пожаловать!")
+        self.canvas.setFont(QFont('Arial', 22))
+        self.canvas.setAlignment(Qt.AlignCenter)
+        # self.label = QLabel("")
+        # self.label.setFont(QFont('Palatino', 22))
+        # self.label.setAlignment(Qt.AlignCenter)
 
         arrows = QHBoxLayout()
         btnPrevImage = NoFocusButton("Назад")
@@ -64,7 +68,8 @@ class ImageGallery(QWidget):
         topButtons.addWidget(btnUseModel)
         vbox.addLayout(topButtons)
 
-        mainWindow.addWidget(self.label)
+        # mainWindow.addWidget(self.label)
+        mainWindow.addWidget(self.canvas)
         vbox.addLayout(mainWindow)
 
         arrows.addWidget(btnPrevImage)
@@ -78,7 +83,7 @@ class ImageGallery(QWidget):
         btnNextImage.clicked.connect(lambda: self.nextImage())
         btnPrevImage.clicked.connect(lambda: self.prevImage())
 
-        self.label.setFocus()
+        btnOpenImages.setFocus()
 
         self.show()
 
@@ -128,29 +133,19 @@ class ImageGallery(QWidget):
 
 
         self.drawer.draw_text(f"{pred_name} {max_conf:.2f}")
-        ####
-        # pixmap = QPixmap(imagePath)
-        self.drawer.show()
 
-        # cvImg = self.drawer.image[:, :, ::-1]
-        # height, width, channel = cvImg.shape
-        # bytesPerLine = 3 * width
-        # image = QImage(cvImg.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        # self.drawer.show()
 
+        img = self.drawer.image
+        pixmap = QPixmap.fromImage(QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888).rgbSwapped())
 
-        # image = self.drawer.image[:,:,::-1]
-        # image = QtGui.QImage(image, image.shape[1],
-        #                      image.shape[0], image.shape[1] * 3, QtGui.QImage.Format_RGB888)
-        # pixmap = QtGui.QPixmap(image)
-        # pixmap = QPixmap(self.drawer.image)
-        # scaled_pixmap = pixmap.scaled(self.label.size(), Qt.KeepAspectRatio)
-        # self.label.setPixmap(scaled_pixmap)
-        # print(self.fname[0][self.current])
+        # pixmap = pixmap.scaled(600,400,Qt.KeepAspectRatio)
+        self.canvas.setPixmap(pixmap)
 
         return pred_name
 
     def getImage(self,*args, **kwargs):
-        self.fname = QFileDialog.getOpenFileNames(self, 'Open file', os.getcwd(), "Image files (*.jpg *.gif *.jpeg)")
+        self.fname = QFileDialog.getOpenFileNames(self, 'Open file', os.path.expanduser("~/Desktop"), "Image files (*.jpg *.gif *.jpeg)")
         try:
             imagePaths = self.fname[0]
             # Iterate over selected file paths
@@ -166,7 +161,7 @@ class ImageGallery(QWidget):
             # Handle index error if no files were selected
             pass
 
-        self.label.setFocus()
+        self.canvas.setFocus()
 
     @check_file_loaded
     def nextImage(self,*args, **kwargs):
@@ -192,11 +187,11 @@ class ImageGallery(QWidget):
 
     def showOneImage(self,*args, **kwargs):
         pred_name = self.showingImage(self.current)
-        self.label.setText(pred_name)
+        # self.label.setText(pred_name)
 
     @check_file_loaded
     def useModel(self,*args, **kwargs):
-        savefname = QFileDialog.getSaveFileName(self, "Save file", "", ".csv")
+        savefname = QFileDialog.getSaveFileName(self, "Save file", os.path.expanduser("~/Desktop"), ".csv")
         d = {'кликун':0, 'малый':0, 'щипун':0}
         n = len(self.fname[0])
         df = pd.DataFrame({'фото':['']*n,'вид':['']*n})
@@ -205,14 +200,15 @@ class ImageGallery(QWidget):
             d[pred] += 1
             df.at[i,'фото'] = self.fname[0][i]
             df.at[i,'вид'] = pred
-        self.label.setText(f"подсчет фото - кликун: {d['кликун']}, малый: {d['малый']}, щипун: {d['щипун']}")
+        self.show_popup_window(f"подсчет фото - кликун: {d['кликун']}, малый: {d['малый']}, щипун: {d['щипун']}")
         df.to_csv(savefname[0]+'.csv')
+        self.current = n-1
 
 
 
 if __name__ == '__main__':
     path_detector_onnx = r"./model_data/best.onnx"
-    path_classifier_pkl = r"C:\workspace\hakaton\hackCBreakthrough\main\model_data\logs_model_ensemble_cpu.pkl"
+    # path_classifier_pkl = r"C:\workspace\hakaton\hackCBreakthrough\main\model_data\logs_model_ensemble_cpu.pkl"
 
     class_names = ['кликун', 'малый', 'щипун']
     # providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
