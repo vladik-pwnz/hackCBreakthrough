@@ -5,3 +5,5 @@ catboost_info
 __pycache__
 main/detector/__pycache__
 main/draw/__pycache__
+.idea
+.DS_Store
