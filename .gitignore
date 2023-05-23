@@ -2,8 +2,7 @@
 venv
 model_data
 catboost_info
-__pycache__
-main/detector/__pycache__
-main/draw/__pycache__
+**/__pycache__
 .idea
 .DS_Store
+swans_example
