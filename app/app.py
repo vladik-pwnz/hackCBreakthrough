@@ -1,17 +1,21 @@
-from functools import wraps
-import torch
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QHBoxLayout, \
-    QMessageBox, QCheckBox
-import sys
-from PyQt5.QtGui import QPixmap, QIcon, QFont, QImage
 import os
-from PyQt5 import QtGui
-from detector import load_model_detector
-import cv2
-from drawer import Drawer
+import sys
+
 import numpy as np
 import pandas as pd
+from functools import wraps
+import torch
+import cv2
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, \
+    QFileDialog, QLabel, QHBoxLayout, QMessageBox, QCheckBox
+from PyQt5.QtGui import QPixmap, QIcon, QFont, QImage
+
+from detector import load_model_detector
+from drawer import Drawer
+
+from pathbook.pathbook import *
 
 def check_file_loaded(func):
     @wraps(func)
@@ -205,11 +209,7 @@ class ImageGallery(QWidget):
         self.current = n-1
 
 
-
 if __name__ == '__main__':
-    path_detector_onnx = r"./model_data/best.onnx"
-    # path_classifier_pkl = r"C:\workspace\hakaton\hackCBreakthrough\main\model_data\logs_model_ensemble_cpu.pkl"
-
     class_names = ['кликун', 'малый', 'щипун']
     # providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
     providers = ['CPUExecutionProvider']

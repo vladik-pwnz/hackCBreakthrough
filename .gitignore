@@ -1,9 +1,8 @@
 .python-version
 venv
-model_data
+.idea
 catboost_info
 **/__pycache__
-.idea
-.DS_Store
-swans_example
+**/.DS_Store
 tmp*
+**bin

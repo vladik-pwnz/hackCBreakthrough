@@ -1,13 +1,16 @@
-import cv2
 import os
+
+import cv2
 import pandas as pd
 from tqdm import tqdm
 
+from pathbook.pathbook import *
+
 # Путь к папке с тренировочными данными
-root_yolo = r"C:\workspace\hakaton\dataset_yolo"
+root_yolo = r"C:\workspace\hakaton\dataset_yolo_cls1"
 data_folder_train = os.path.join(root_yolo, 'train')
 data_folder_val = os.path.join(root_yolo, 'val')
-root_dataset = r"C:\workspace\hakaton\dataset"
+root_dataset = path_initial_train_dataset
 
 train_df = pd.read_csv('train.csv')
 val_df = pd.read_csv('test.csv')
@@ -23,11 +26,10 @@ for df, data_folder in [(train_df, data_folder_train), (val_df, data_folder_val)
     for index, row in tqdm(df.iterrows()):
         # Получаем путь к изображению и разметке
         image_path = row['path_img']
-        # image_path = image_path.replace('=', '-')
+        # image_path.replace('=', '-')
         # label_path = row['path_mask']
         # image_path = os.path.join(root_dataset, row['type_name'], image_path)
         image_path = os.path.join(root_dataset, image_path)
-        image_path = image_path.replace('=', '-')
         # print(image_path)
         if not os.path.exists(image_path):
             print(image_path)
@@ -41,7 +43,7 @@ for df, data_folder in [(train_df, data_folder_train), (val_df, data_folder_val)
         # Сохраняем изображение в папку "train/images"
         image_filename = os.path.basename(image_path)
         image_save_path = os.path.join(image_folder, image_filename)
-        cv2.imwrite(image_save_path, image)
+        cv2.imwrite(image_save_path.replace('=', '-'), image)
 
         # Сохраняем разметку в папку "train/labels" в формате YOLO
         label_filename = os.path.splitext(image_filename)[0] + '.txt'
@@ -60,8 +62,10 @@ for df, data_folder in [(train_df, data_folder_train), (val_df, data_folder_val)
         box_height = y2 - y1
 
         # Создаем строку разметки в формате YOLO
-        label = f"{row['type_id']} {x_center} {y_center} {box_width} {box_height}\n"
+        # label = f"{row['type_id']} {x_center} {y_center} {box_width} {box_height}"
 
+        # хардкод класс id 0
+        label = f"{0} {x_center} {y_center} {box_width} {box_height}"
         # Записываем строку разметки в файл
         with open(label_save_path.replace('=', '-'), 'a') as f:
             f.write(label)
