@@ -2,6 +2,8 @@ import os
 import sys
 
 from pathbook.pathbook import *
+from model.yolov7.detector import load_model_detector
+from drawer import Drawer
 
 import numpy as np
 import pandas as pd
@@ -13,9 +15,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, \
     QFileDialog, QLabel, QHBoxLayout, QMessageBox, QCheckBox
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QImage
-
-from detector import load_model_detector
-from drawer import Drawer
 
 
 def check_file_loaded(func):
