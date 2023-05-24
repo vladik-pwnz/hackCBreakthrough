@@ -7,6 +7,7 @@ To try the product:
 - clone this repo
 - downlownd datasets and binary files from [link to drive]
 - place them into paths from pathbook/pathbook.py (congigure it alternatively)
+- run `python setup.py install`
 - run app/app.py
 
 ## Folders discription

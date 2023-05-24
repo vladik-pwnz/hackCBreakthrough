@@ -1,4 +1,5 @@
 .python-version
+.venv
 venv
 .idea
 catboost_info
@@ -6,3 +7,6 @@ catboost_info
 **/.DS_Store
 tmp*
 **bin
+**.egg-info
+dist
+build

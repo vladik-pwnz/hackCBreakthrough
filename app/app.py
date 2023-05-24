@@ -1,6 +1,8 @@
 import os
 import sys
 
+from pathbook.pathbook import *
+
 import numpy as np
 import pandas as pd
 from functools import wraps
@@ -15,7 +17,6 @@ from PyQt5.QtGui import QPixmap, QIcon, QFont, QImage
 from detector import load_model_detector
 from drawer import Drawer
 
-from pathbook.pathbook import *
 
 def check_file_loaded(func):
     @wraps(func)
