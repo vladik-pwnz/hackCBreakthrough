@@ -2,7 +2,7 @@ import os
 import sys
 
 from pathbook.pathbook import *
-from model.yolov7.detector import load_model_detector
+from model.yolodetector import load_model_detector
 from drawer import Drawer
 
 import numpy as np
