@@ -10,7 +10,11 @@ tmp*
 **.egg-info
 dist
 build
-**.jpg
-**.xml
 pathbook/pathbook.py
 swans.code-workspace
+**runs
+**.cache
+data/train
+data/val
+data/test
+data/submit

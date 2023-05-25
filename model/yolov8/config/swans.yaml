@@ -1,0 +1,8 @@
+train: /Users/samedi/Documents/Coding/swans/data/train 
+val: /Users/samedi/Documents/Coding/swans/data/val  
+
+# number of classes
+nc: 3
+
+# class names
+names: ['klikun', 'maliy', 'shipun']
