@@ -1,10 +1,12 @@
 path_detector_onnx = r'/Users/samedi/Documents/Coding/swans/model/bin/mike_yolov7.onnx'
 
 path_initial_train_dataset = r'/Users/samedi/Desktop/Минприроды'
+
 path_train_dataset = r'/Users/samedi/Documents/Coding/swans/data/train'
 path_val_dataset = r'/Users/samedi/Documents/Coding/swans/data/val'
 path_test_dataset = r'/Users/samedi/Documents/Coding/swans/data/test'
-path_submit = r'/Users/samedi/Documents/Coding/swans/data/submit'
+path_cls_train_dataset = r'/Users/samedi/Documents/Coding/swans/data/classification/train'
+path_cls_val_dataset = r'/Users/samedi/Documents/Coding/swans/data/classification/val'
 
 path_test_annotation = r'/Users/samedi/Documents/Coding/swans/data/test_annotation.csv'
 path_train_annotation = r'/Users/samedi/Documents/Coding/swans/data/train_annotation.csv'
