@@ -19,3 +19,4 @@ data/val
 data/test
 data/submit
 YOLOV8
+**.pt
