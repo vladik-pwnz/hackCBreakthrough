@@ -14,6 +14,4 @@ pathbook/pathbook.py
 swans.code-workspace
 **runs
 **.cache
-YOLOV8
-**.pt
 data
