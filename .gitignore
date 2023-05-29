@@ -16,3 +16,5 @@ swans.code-workspace
 **.cache
 dataset
 data
+pathbook/pathbook.py
+**.pt
