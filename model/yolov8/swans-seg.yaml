@@ -1,0 +1,13 @@
+path: /Users/samedi/Documents/Coding/swans/dataset
+train: train 
+val: val  
+
+# classes
+nc: 3
+names: ['klikun', 'maliy', 'shipun']
+
+translate: 0.1 
+scale: 0.2
+fliplr: 0.5 # flip left-right (probability)
+hsv_h: 0.01 # image HSV-Hue augmentation (fraction)
+hsv_s: 0.7  # image HSV-Saturation augmentation (fractio
