@@ -15,6 +15,7 @@ swans.code-workspace
 **runs
 **.cache
 dataset
+datasets
 data
-pathbook/pathbook.py
 **.pt
+*.csv
